@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Colored Treemap Example</title>
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+
+    <style>
+        svg{
+            border: 1px solid black;            
+        }
+    </style>
+
+    
+</head>
+
+<body>
+
+    <script>
+        // 1. 데이터 준비
+        const data = {
+            name: "Root",
+            children: [
+                { name: "USA", value: 50, color: "red" },
+                { name: "China", value: 40, color: "green" },
+                { name: "C", value: 30, color: "blue" },
+                { name: "D", value: 20, color: "red" },
+                { name: "E", value: 10, color: "green" },
+                { name: "F", value: 10, color: "blue" },
+                { name: "G", value: 10, color: "red" },
+                { name: "H", value: 10, color: "green" },
+                { name: "I", value: 10, color: "blue" },
+                { name: "J", value: 15, color: "red" }
+            ]
+        };
+
+        const width = 600;  // 그래프 넓이
+        const height = 400; // 그래프 높이
+        // const padding = 30; // 스케일 표시용 여백
+
+        // 2. SVG 영역 설정
+        const svg = d3.select("body").append("svg").attr("width", width).attr("height", height);
+
+        const treemapLayout = d3.treemap()
+            .size([width, height])
+            .padding(4);    // 사각형 사이 선 픽셀두께
+
+        const rootNode = d3.hierarchy(data)
+            .sum(d => d.value);
+
+        treemapLayout(rootNode);
+
+        svg.selectAll("rect")
+            .data(rootNode.descendants())
+            .enter().append("rect")
+            .attr("x", d => d.x0)
+            .attr("y", d => d.y0)
+            .attr("width", d => d.x1 - d.x0)
+            .attr("height", d => d.y1 - d.y0)
+            .attr("fill", d => d.data.color)
+
+        svg.selectAll("text")
+            .data(rootNode.descendants())
+            .enter().append("text")
+            .attr("x", d => (d.x0 + d.x1) / 2)  // 텍스트를 각 사각형의 가운데(가로) 위치, 제거하면 x축 맨 앞으로 이동
+            .attr("y", d => (d.y0 + d.y1) / 2)  // 텍스트를 각 사각형의 가운데(세로) 위치, 제거하면 y축 맨 앞으로 이동
+            .attr("dy", "0.35em")   // 텍스트 세로위치를 중앙에서 살짝 아래로 놓게함, dy = delta y, 1em = font-size
+            .attr("text-anchor", "middle")  // 텍스트 가로정렬, 가운데
+            .text(d => d.data.name) 
+            .style("fill", "white") // 텍스트색상 : 하얀색, To make text visible on darker colors
+    </script>
+</body>
+
+</html>
